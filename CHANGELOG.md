@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 13: Universal Multi-LLM Engine (Gemini, OpenAI, Ollama) - 2026-10-31
+- Added `UniversalLLMClient` in `opensdr.ai` with multi-model routing (Google Gemini, OpenAI GPT-4o-mini, local Ollama).
+- Implemented automatic environment credential detection (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `OLLAMA_HOST`).
+- Implemented zero-cost deterministic NLP fallback so the platform operates fully even when offline or without paid keys.
+- Integrated `LLMSynthesizer` into `ResearchAgent` for deep firmographic analysis.
+- Added 5 unit tests in `tests/test_ai.py`.
+
 ### Phase 12: Full Web UI Persistence, CSV Import/Export & Live Job Polling - 2026-10-31
 - Connected the web spreadsheet UI dynamically to `GET /api/v1/leads` database records on load.
 - Implemented in-browser CSV import parsing and bulk creation via `POST /api/v1/leads`.
