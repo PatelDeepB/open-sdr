@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 14: Production Containerization & Docker Compose - 2026-10-31
+- Added production-grade `Dockerfile` based on `python:3.11-slim` with automated curl healthcheck.
+- Added `docker-compose.yml` supporting persistent volume mounts for the SQLite database.
+- Added `.dockerignore` for lean container builds.
+- Added environment variable routing for `GEMINI_API_KEY`, `OPENAI_API_KEY`, and `OLLAMA_HOST`.
+- Updated `README.md` with one-command container deployment guide (`docker compose up -d`).
+
 ### Phase 13: Universal Multi-LLM Engine (Gemini, OpenAI, Ollama) - 2026-10-31
 - Added `UniversalLLMClient` in `opensdr.ai` with multi-model routing (Google Gemini, OpenAI GPT-4o-mini, local Ollama).
 - Implemented automatic environment credential detection (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `OLLAMA_HOST`).

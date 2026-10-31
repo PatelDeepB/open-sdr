@@ -5,8 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](docker-compose.yml)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-red.svg)](https://www.sqlalchemy.org)
-[![Tests: Passing](https://img.shields.io/badge/Tests-40%20Passing-success.svg)](tests/)
+[![Tests: Passing](https://img.shields.io/badge/Tests-45%20Passing-success.svg)](tests/)
 
 OpenSDR replicates the core feature set of high-ticket outbound sales platforms (like Clay and 11x) without per-credit fees or vendor lock-in.
 
@@ -29,8 +30,8 @@ Prospects (CSV Import / Web UI / REST API)
         │                           3. DNS / MX Server Verifier
         │                           4. Modular Providers (Hunter, Apollo)
         ▼
-[Autonomous Web Research]       ──► Crawls Target Domain (/about, meta tags)
-        │                           Detects Tech Stack (HubSpot, Stripe, AWS, React)
+[Universal Multi-LLM Engine]    ──► Auto-Detects Gemini, OpenAI, Ollama, Heuristic
+        │                           Crawl & Extract Buying Triggers + Tech Stacks
         ▼
 [AI Copywriter & Auditor]       ──► Dynamic Icebreaker from Researched Signals
         │                           3-Touch Sequence (Initial, Bump, Breakup)
@@ -51,53 +52,47 @@ Prospects (CSV Import / Web UI / REST API)
 ## Enterprise Feature Set
 
 1. **Persistent Database Engine:** Built on SQLAlchemy with SQLite (default) and PostgreSQL compatibility. Every lead, campaign status, and AI sequence is permanently saved.
-2. **Asynchronous Background Task Queue:** Run batches of 1,000+ leads without HTTP request timeouts. Live progress bars report real-time percentage and item counters.
-3. **Interactive Clay-Style Spreadsheet Grid:** Web dashboard at `http://localhost:8000` with live row updates, CSV import/export, and single-click SDR runs.
-4. **Waterfall Lead Enrichment:** Cascades through free web scrapers, email permutation generators, live DNS/MX validators, and optional Hunter/Apollo APIs.
-5. **Credit & Cost Tracking:** Automatically tracks API calls and counts credits saved by free upstream providers.
-6. **Autonomous Web Research Agent:** Analyzes target company domains, career pages, and meta descriptions to synthesize buying triggers and tech stacks.
-7. **AI Outreach Copywriter:** Generates hyper-tailored 3-touch cadences (`quick_question`, `pas`, `followup_bump`, `breakup`) with bespoke icebreakers.
-8. **Deliverability & Spam Auditor:** Scans copy against commercial spam filters, penalizes bloated subject lines, and optimizes for mobile readability.
-9. **Autonomous Inbound SDR (11x Feature):** Parses incoming prospect email replies, classifies intent, auto-schedules meetings via Cal.com/Calendly, and extracts colleague referrals.
-10. **Real-Time IMAP Mailbox Listener & SMTP Dispatcher:** Automatically monitors unread inbox replies and sends authenticated TLS emails.
+2. **Universal Multi-LLM Engine:** Auto-routes prompts across Google Gemini, OpenAI GPT-4o-mini, local Ollama models, or deterministic zero-cost NLP fallback.
+3. **Asynchronous Background Task Queue:** Run batches of 1,000+ leads without HTTP request timeouts. Live progress bars report real-time percentage and item counters.
+4. **Interactive Clay-Style Spreadsheet Grid:** Web dashboard at `http://localhost:8000` with live row updates, CSV import/export, and single-click SDR runs.
+5. **Waterfall Lead Enrichment:** Cascades through free web scrapers, email permutation generators, live DNS/MX validators, and optional Hunter/Apollo APIs.
+6. **Credit & Cost Tracking:** Automatically tracks API calls and counts credits saved by free upstream providers.
+7. **Autonomous Web Research Agent:** Analyzes target company domains, career pages, and meta descriptions to synthesize buying triggers and tech stacks.
+8. **AI Outreach Copywriter:** Generates hyper-tailored 3-touch cadences (`quick_question`, `pas`, `followup_bump`, `breakup`) with bespoke icebreakers.
+9. **Deliverability & Spam Auditor:** Scans copy against commercial spam filters, penalizes bloated subject lines, and optimizes for mobile readability.
+10. **Autonomous Inbound SDR (11x Feature):** Parses incoming prospect email replies, classifies intent, auto-schedules meetings via Cal.com/Calendly, and extracts colleague referrals.
+11. **Real-Time IMAP Mailbox Listener & SMTP Dispatcher:** Automatically monitors unread inbox replies and sends authenticated TLS emails.
+12. **Docker One-Click Deployment:** Production-ready `Dockerfile` and `docker-compose.yml` with persistent volume mounts and container health checks.
 
 ---
 
 ## Quickstart
 
-### Installation
-
-Clone the repository and install dependencies:
+### Option A: One-Click Docker Deployment
 
 ```bash
 git clone https://github.com/PatelDeepB/open-sdr.git
 cd open-sdr
-pip install -e .
-```
-
----
-
-### 1. Launch Interactive Spreadsheet Grid UI
-
-Start the local server:
-
-```bash
-uvicorn opensdr.api:app --reload --port 8000
+docker compose up -d
 ```
 
 Open your browser to:
 👉 **`http://localhost:8000`**
 
-From the UI, you can:
-* Add custom prospect rows into the persistent database.
-* Upload CSV files directly with automatic schema mapping.
-* Export enriched leads to CSV with verified emails and copy.
-* Run real-time background batch jobs with live progress bars.
-* Use the **Inbound SDR Simulator** to test automated intent classification and calendar link generation.
+---
+
+### Option B: Local Python Setup
+
+```bash
+git clone https://github.com/PatelDeepB/open-sdr.git
+cd open-sdr
+pip install -e .
+uvicorn opensdr.api:app --reload --port 8000
+```
 
 ---
 
-### 2. Command-Line Interface (CLI)
+### Command-Line Interface (CLI)
 
 #### Run Full Pipeline for a Single Lead
 
@@ -117,7 +112,7 @@ python -m opensdr.cli batch --file data/sample_leads.csv --output results.json
 
 ---
 
-### 3. REST API Endpoints
+### REST API Endpoints
 
 Interactive Swagger documentation is available at `http://localhost:8000/docs`.
 
