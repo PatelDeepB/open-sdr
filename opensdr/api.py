@@ -1,10 +1,18 @@
 from pathlib import Path
-from typing import Any, Dict
-from fastapi import FastAPI, HTTPException, status
+from typing import Any, Dict, List
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from opensdr.copywriting.writer import CopywriterAgent
+from opensdr.db import (
+    LeadRecord,
+    get_db,
+    init_db,
+    list_leads,
+    save_or_update_lead,
+)
 from opensdr.enrichment.waterfall import WaterfallEnricher
 from opensdr.inbound.agent import InboundActionResponse, InboundSDRAgent
 from opensdr.models import Lead
@@ -22,6 +30,9 @@ enricher = WaterfallEnricher()
 researcher = ResearchAgent()
 copywriter = CopywriterAgent()
 inbound_sdr = InboundSDRAgent()
+
+# Initialize SQLite database on startup
+init_db()
 
 
 class HealthResponse(BaseModel):
@@ -64,12 +75,47 @@ async def get_health_status() -> HealthResponse:
         status="healthy",
         version="0.1.0",
         dependencies={
+            "database": "connected",
             "enricher": "operational",
             "researcher": "operational",
             "copywriter": "operational",
             "inbound_sdr": "operational"
         }
     )
+
+
+@app.get("/api/v1/leads", response_model=List[Lead], tags=["Leads Database"])
+async def get_all_leads_endpoint(
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db)
+) -> List[Lead]:
+    """Retrieve all saved prospects from the persistent database."""
+    return list_leads(db, limit=limit, offset=offset)
+
+
+@app.post("/api/v1/leads", response_model=Lead, tags=["Leads Database"])
+async def create_or_save_lead_endpoint(
+    lead: Lead,
+    db: Session = Depends(get_db)
+) -> Lead:
+    """Persist a lead record to the database."""
+    record = save_or_update_lead(db, lead)
+    return record.to_pydantic()
+
+
+@app.delete("/api/v1/leads/{lead_id}", tags=["Leads Database"])
+async def delete_lead_endpoint(lead_id: int, db: Session = Depends(get_db)) -> Dict[str, bool]:
+    """Remove a lead from persistent storage."""
+    record = db.query(LeadRecord).filter(LeadRecord.id == lead_id).first()
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lead with id {lead_id} not found."
+        )
+    db.delete(record)
+    db.commit()
+    return {"deleted": True}
 
 
 @app.post("/api/v1/enrich", response_model=Lead, tags=["Enrichment"])
@@ -101,8 +147,11 @@ async def copywrite_lead_endpoint(lead: Lead, template: str = "quick_question") 
 
 
 @app.post("/api/v1/pipeline", response_model=Lead, tags=["Pipeline"])
-async def run_full_pipeline_endpoint(req: PipelineRequest) -> Lead:
-    """Execute end-to-end autonomous SDR flow: Waterfall Enrich -> Web Research -> AI Copywriter."""
+async def run_full_pipeline_endpoint(
+    req: PipelineRequest,
+    db: Session = Depends(get_db)
+) -> Lead:
+    """Execute end-to-end SDR flow and persist resulting lead to database."""
     lead = Lead(
         first_name=req.first_name,
         last_name=req.last_name,
@@ -113,6 +162,7 @@ async def run_full_pipeline_endpoint(req: PipelineRequest) -> Lead:
     lead = await enricher.run(lead)
     lead = await researcher.analyze(lead)
     lead = copywriter.process_lead(lead, template_name=req.template_name)
+    save_or_update_lead(db, lead)
     return lead
 
 
