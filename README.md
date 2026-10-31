@@ -32,7 +32,7 @@ OpenSDR replicates the core feature set of high-ticket outbound sales platforms 
 | **Pricing** | **$0 / month** | $149 to $800+/mo | $3,000+/mo | $99/mo |
 | **Source Code** | **100% Open-Source (MIT)** | Closed SaaS | Closed SaaS | Closed SaaS |
 | **Self-Hosted & Private** | **Yes (Local / Docker)** | No (Cloud Only) | No (Cloud Only) | No (Cloud Only) |
-| **Interactive Spreadsheet Grid** | **Yes** | Yes | No | Table View |
+| **Interactive Spreadsheet Grid** | **Yes (with Inspector Modal)** | Yes | No | Table View |
 | **Waterfall Lead Enrichment** | **Yes** | Yes | No | Basic Match |
 | **Autonomous Web Research Agent** | **Yes** | Yes (Claygent) | Yes | Basic Signals |
 | **AI Outreach Copywriter** | **Yes** | Yes | Yes | Yes |
@@ -87,6 +87,7 @@ Prospects (CSV Import / Web UI / REST API)
 ```bash
 git clone https://github.com/PatelDeepB/open-sdr.git
 cd open-sdr
+cp .env.example .env
 docker compose up -d
 ```
 
@@ -100,6 +101,7 @@ Open your browser to:
 ```bash
 git clone https://github.com/PatelDeepB/open-sdr.git
 cd open-sdr
+cp .env.example .env
 pip install -e .
 uvicorn opensdr.api:app --reload --port 8000
 ```
@@ -128,13 +130,15 @@ python -m opensdr.cli batch --file data/sample_leads.csv --output results.json
 
 ## Environment Variables (All Optional)
 
+See [`.env.example`](.env.example) for a pre-configured template:
+
 | Variable | Description | Default |
 | :--- | :--- | :--- |
 | `DATABASE_URL` | SQLAlchemy connection string | `sqlite:///data/opensdr.db` |
 | `GEMINI_API_KEY` | Google Gemini API key for advanced research | Empty (uses heuristic) |
 | `OPENAI_API_KEY` | OpenAI API key | Empty (uses heuristic) |
 | `OPENAI_MODEL` | OpenAI Model ID (defaults to GPT-6 Luna) | `gpt-6-luna` |
-| `OLLAMA_HOST` | Local Ollama instance URL | `http://localhost:11434` |
+| `OLLAMA_BASE_URL` | Local Ollama instance URL | `http://localhost:11434` |
 | `HUNTER_API_KEY` | Optional Hunter.io enrichment key | Empty (skips gracefully) |
 | `APOLLO_API_KEY` | Optional Apollo.io enrichment key | Empty (skips gracefully) |
 
