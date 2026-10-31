@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 10: Asynchronous Background Job Engine & Task Queue - 2026-10-31
+- Added `Job` and `JobStatus` models with tracking for progress percentage, processed items, and errors.
+- Implemented `JobQueueManager` for job creation, status updates, and completion recording.
+- Implemented `run_batch_enrichment_worker` in `opensdr.jobs.worker` to process large lead lists asynchronously in the background.
+- Added API endpoints in `opensdr.api`: `POST /api/v1/jobs/batch` (202 Accepted) and `GET /api/v1/jobs/{job_id}`.
+- Added 3 unit tests in `tests/test_jobs.py`.
+
 ### Phase 9: Persistent Database & ORM Storage - 2026-10-31
 - Added `LeadRecord` SQLAlchemy ORM model and SQLite/PostgreSQL storage in `opensdr.db`.
 - Added bidirectional serialization between database records and Pydantic `Lead` models.

@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any, Dict, List
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -15,6 +15,8 @@ from opensdr.db import (
 )
 from opensdr.enrichment.waterfall import WaterfallEnricher
 from opensdr.inbound.agent import InboundActionResponse, InboundSDRAgent
+from opensdr.jobs.queue import Job, JobQueueManager
+from opensdr.jobs.worker import run_batch_enrichment_worker
 from opensdr.models import Lead
 from opensdr.research.agent import ResearchAgent
 
@@ -30,6 +32,7 @@ enricher = WaterfallEnricher()
 researcher = ResearchAgent()
 copywriter = CopywriterAgent()
 inbound_sdr = InboundSDRAgent()
+job_manager = JobQueueManager()
 
 # Initialize SQLite database on startup
 init_db()
@@ -55,6 +58,10 @@ class InboundReplyRequest(BaseModel):
     booking_url: str = "https://cal.com/team/15min"
 
 
+class BatchJobSubmitRequest(BaseModel):
+    leads: List[Lead]
+
+
 @app.get("/", response_class=FileResponse, tags=["Dashboard"])
 @app.get("/dashboard", response_class=FileResponse, tags=["Dashboard"])
 async def serve_dashboard() -> FileResponse:
@@ -76,6 +83,7 @@ async def get_health_status() -> HealthResponse:
         version="0.1.0",
         dependencies={
             "database": "connected",
+            "job_queue": "operational",
             "enricher": "operational",
             "researcher": "operational",
             "copywriter": "operational",
@@ -116,6 +124,40 @@ async def delete_lead_endpoint(lead_id: int, db: Session = Depends(get_db)) -> D
     db.delete(record)
     db.commit()
     return {"deleted": True}
+
+
+@app.post("/api/v1/jobs/batch", response_model=Job, status_code=status.HTTP_202_ACCEPTED, tags=["Jobs Queue"])
+async def submit_batch_job_endpoint(
+    req: BatchJobSubmitRequest,
+    background_tasks: BackgroundTasks
+) -> Job:
+    """Submit a batch of leads to be processed asynchronously in the background."""
+    if not req.leads:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Leads list cannot be empty."
+        )
+
+    job = job_manager.create_job(total_items=len(req.leads))
+    background_tasks.add_task(
+        run_batch_enrichment_worker,
+        job.id,
+        req.leads,
+        job_manager
+    )
+    return job
+
+
+@app.get("/api/v1/jobs/{job_id}", response_model=Job, tags=["Jobs Queue"])
+async def get_job_status_endpoint(job_id: str) -> Job:
+    """Check live execution status, counters, and progress of a background job."""
+    job = job_manager.get_job(job_id)
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job with id {job_id} not found."
+        )
+    return job
 
 
 @app.post("/api/v1/enrich", response_model=Lead, tags=["Enrichment"])
