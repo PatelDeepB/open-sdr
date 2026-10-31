@@ -2,14 +2,46 @@
 
 > Production-ready, 100% open-source alternative to Clay and autonomous AI SDRs (like 11x).
 
+[![CI](https://github.com/PatelDeepB/open-sdr/actions/workflows/ci.yml/badge.svg)](https://github.com/PatelDeepB/open-sdr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](docker-compose.yml)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-red.svg)](https://www.sqlalchemy.org)
 [![Tests: Passing](https://img.shields.io/badge/Tests-45%20Passing-success.svg)](tests/)
+[![Zero API Keys Required](https://img.shields.io/badge/API%20Keys-Zero%20Required-success.svg)]()
 
-OpenSDR replicates the core feature set of high-ticket outbound sales platforms (like Clay and 11x) without per-credit fees or vendor lock-in.
+OpenSDR replicates the core feature set of high-ticket outbound sales platforms without per-credit fees or vendor lock-in.
+
+---
+
+## Do I Need Any API Keys to Use OpenSDR?
+
+**No. OpenSDR is 100% operational out of the box with zero API keys required.**
+
+* **Email Discovery & Verification:** Uses free web scrapers, corporate permutation heuristics, and direct live DNS MX server validation for $0.
+* **Firmographic Research:** Crawls company domains, parses meta descriptions, and extracts tech stacks without third-party subscriptions.
+* **AI Analysis & Copywriting:** Built-in deterministic NLP engine handles icebreakers, pain point detection, and 3-touch sequence generation completely free.
+* **Optional Paid Keys:** If you *choose* to add external keys (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `HUNTER_API_KEY`, or `APOLLO_API_KEY`), OpenSDR automatically detects and routes through them, but they are never required.
+
+---
+
+## Comparison Matrix: OpenSDR vs Commercial Tools
+
+| Feature | OpenSDR | Clay.com | 11x.ai (Alice) | Apollo.io |
+| :--- | :---: | :---: | :---: | :---: |
+| **Pricing** | **$0 / month** | $149 to $800+/mo | $3,000+/mo | $99/mo |
+| **Source Code** | **100% Open-Source (MIT)** | Closed SaaS | Closed SaaS | Closed SaaS |
+| **Self-Hosted & Private** | **Yes (Local / Docker)** | No (Cloud Only) | No (Cloud Only) | No (Cloud Only) |
+| **Interactive Spreadsheet Grid** | **Yes** | Yes | No | Table View |
+| **Waterfall Lead Enrichment** | **Yes** | Yes | No | Basic Match |
+| **Autonomous Web Research Agent** | **Yes** | Yes (Claygent) | Yes | Basic Signals |
+| **AI Outreach Copywriter** | **Yes** | Yes | Yes | Yes |
+| **Autonomous Inbound SDR** | **Yes** | No | Yes | No |
+| **Calendar Booking Integration** | **Yes (Cal.com / Calendly)** | No | Yes | Basic |
+| **Persistent Database Storage** | **Yes (SQLite / Postgres)** | Cloud DB | Cloud DB | Cloud DB |
+| **Async Background Job Queue** | **Yes** | Yes | Yes | Yes |
+| **One-Click Docker Deploy** | **Yes** | No | No | No |
 
 ---
 
@@ -46,23 +78,6 @@ Prospects (CSV Import / Web UI / REST API)
                                     Embeds Cal.com / Calendly Links Automatically
                                     Auto-Creates New Leads from Referrals
 ```
-
----
-
-## Enterprise Feature Set
-
-1. **Persistent Database Engine:** Built on SQLAlchemy with SQLite (default) and PostgreSQL compatibility. Every lead, campaign status, and AI sequence is permanently saved.
-2. **Universal Multi-LLM Engine:** Auto-routes prompts across Google Gemini, OpenAI GPT-4o-mini, local Ollama models, or deterministic zero-cost NLP fallback.
-3. **Asynchronous Background Task Queue:** Run batches of 1,000+ leads without HTTP request timeouts. Live progress bars report real-time percentage and item counters.
-4. **Interactive Clay-Style Spreadsheet Grid:** Web dashboard at `http://localhost:8000` with live row updates, CSV import/export, and single-click SDR runs.
-5. **Waterfall Lead Enrichment:** Cascades through free web scrapers, email permutation generators, live DNS/MX validators, and optional Hunter/Apollo APIs.
-6. **Credit & Cost Tracking:** Automatically tracks API calls and counts credits saved by free upstream providers.
-7. **Autonomous Web Research Agent:** Analyzes target company domains, career pages, and meta descriptions to synthesize buying triggers and tech stacks.
-8. **AI Outreach Copywriter:** Generates hyper-tailored 3-touch cadences (`quick_question`, `pas`, `followup_bump`, `breakup`) with bespoke icebreakers.
-9. **Deliverability & Spam Auditor:** Scans copy against commercial spam filters, penalizes bloated subject lines, and optimizes for mobile readability.
-10. **Autonomous Inbound SDR (11x Feature):** Parses incoming prospect email replies, classifies intent, auto-schedules meetings via Cal.com/Calendly, and extracts colleague referrals.
-11. **Real-Time IMAP Mailbox Listener & SMTP Dispatcher:** Automatically monitors unread inbox replies and sends authenticated TLS emails.
-12. **Docker One-Click Deployment:** Production-ready `Dockerfile` and `docker-compose.yml` with persistent volume mounts and container health checks.
 
 ---
 
@@ -112,23 +127,16 @@ python -m opensdr.cli batch --file data/sample_leads.csv --output results.json
 
 ---
 
-### REST API Endpoints
+## Environment Variables (All Optional)
 
-Interactive Swagger documentation is available at `http://localhost:8000/docs`.
-
-* `GET /` : Interactive spreadsheet dashboard UI.
-* `GET /health` : System, database, and dependency health status.
-* `GET /api/v1/leads` : List all saved prospects from database.
-* `POST /api/v1/leads` : Save a new lead to database.
-* `DELETE /api/v1/leads/{id}` : Remove a lead from database.
-* `POST /api/v1/jobs/batch` : Submit batch enrichment job to background queue (202 Accepted).
-* `GET /api/v1/jobs/{job_id}` : Poll execution progress and counters for a job.
-* `POST /api/v1/enrich` : Execute waterfall enrichment cascade.
-* `POST /api/v1/research` : Crawl domain and extract firmographics.
-* `POST /api/v1/copywrite` : Generate 3-step sequence and deliverability audit.
-* `POST /api/v1/pipeline` : End-to-end SDR run (Enrich -> Research -> Copywrite -> Persist).
-* `POST /api/v1/inbound/reply` : Autonomous SDR reply classification and calendar booking.
-* `POST /api/v1/inbound/sync` : IMAP inbox synchronization and autonomous trigger.
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | SQLAlchemy connection string | `sqlite:///data/opensdr.db` |
+| `GEMINI_API_KEY` | Google Gemini API key for advanced research | Empty (uses heuristic) |
+| `OPENAI_API_KEY` | OpenAI API key for GPT-4o-mini | Empty (uses heuristic) |
+| `OLLAMA_HOST` | Local Ollama instance URL | `http://localhost:11434` |
+| `HUNTER_API_KEY` | Optional Hunter.io enrichment key | Empty (skips gracefully) |
+| `APOLLO_API_KEY` | Optional Apollo.io enrichment key | Empty (skips gracefully) |
 
 ---
 
@@ -139,6 +147,20 @@ Execute the complete test suite:
 ```bash
 pytest
 ```
+
+---
+
+## Star History
+
+If OpenSDR has saved you money on Clay or 11x subscriptions, consider starring the repo:
+
+[![Star History Chart](https://api.star-history.com/svg?repos=PatelDeepB/open-sdr&type=Date)](https://star-history.com/#PatelDeepB/open-sdr&Date)
+
+---
+
+## Contributing
+
+Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) and our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ---
 

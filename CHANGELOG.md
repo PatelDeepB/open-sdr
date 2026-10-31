@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 15: GitHub SEO, Community Health & Open-Source Perfection - 2026-10-31
+- Added GitHub Actions CI test suite workflow in `.github/workflows/ci.yml` running on Python 3.10 and 3.11.
+- Added GitHub issue templates for bug reports and feature requests.
+- Added GitHub pull request template.
+- Added open-source community health standards: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
+- Enhanced `README.md` with cost comparison matrix (OpenSDR vs Clay vs 11x vs Apollo), CI badges, Star History chart, and zero-API-key guarantee.
+- Added 10 SEO topics on remote GitHub repository: `ai-agent`, `clay-alternative`, `sdr`, `lead-generation`, `cold-email`, `sales-automation`, `waterfall-enrichment`, `fastapi`, `llm`, `open-source`.
+
 ### Phase 14: Production Containerization & Docker Compose - 2026-10-31
 - Added production-grade `Dockerfile` based on `python:3.11-slim` with automated curl healthcheck.
 - Added `docker-compose.yml` supporting persistent volume mounts for the SQLite database.
