@@ -1,7 +1,7 @@
 import abc
-import os
 from typing import Dict, Optional
 
+from opensdr.ai import UniversalLLMClient
 from opensdr.models import Company, Lead
 from opensdr.research.crawler import (
     detect_tech_signals,
@@ -27,8 +27,6 @@ class HeuristicSynthesizer(BaseSynthesizer):
         body = page_data.get("body_snippet", "")
 
         summary = description or title or f"{lead.company_name} is operating in the {lead.domain} domain."
-        
-        # Identify probable customer pain points based on industry signals
         pain_points = "Automating pipeline bottlenecks and scaling outbound revenue without adding headcount."
         trigger = f"Active web presence and digital customer acquisition at {lead.domain}."
 
@@ -44,11 +42,37 @@ class HeuristicSynthesizer(BaseSynthesizer):
         }
 
 
+class LLMSynthesizer(BaseSynthesizer):
+    """Universal AI synthesizer querying Gemini, OpenAI, or falling back seamlessly."""
+
+    def __init__(self, client: Optional[UniversalLLMClient] = None):
+        self.client = client or UniversalLLMClient()
+        self.fallback = HeuristicSynthesizer()
+
+    async def synthesize(self, lead: Lead, page_data: Dict[str, str]) -> Dict[str, str]:
+        if self.client.get_active_provider() == "heuristic":
+            return await self.fallback.synthesize(lead, page_data)
+
+        prompt = (
+            f"Analyze company '{lead.company_name}' ({lead.domain}).\n"
+            f"Description: {page_data.get('meta_description')}\n"
+            f"Snippet: {page_data.get('body_snippet')[:800]}\n"
+            f"Identify their primary operational pain point in 1 sentence."
+        )
+        ai_insight = await self.client.generate(prompt)
+
+        return {
+            "summary": page_data.get("meta_description") or page_data.get("title") or lead.company_name,
+            "pain_points": ai_insight,
+            "trigger": f"Verified tech stack indicators and digital growth at {lead.domain}."
+        }
+
+
 class ResearchAgent:
     """Autonomous agent that crawls company domains and extracts structured intelligence."""
 
     def __init__(self, synthesizer: Optional[BaseSynthesizer] = None):
-        self.synthesizer = synthesizer or HeuristicSynthesizer()
+        self.synthesizer = synthesizer or LLMSynthesizer()
 
     async def analyze(self, lead: Lead) -> Lead:
         """Execute full company investigation and attach firmographic research to lead."""
