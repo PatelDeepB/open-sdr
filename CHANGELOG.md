@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 11: Real-Time IMAP Mailbox Listener & Production SMTP Dispatcher - 2026-10-31
+- Added `ImapInboxListener` in `opensdr.inbound.listener` for monitoring unread emails and thread responses.
+- Implemented automated matching of incoming emails against database prospects.
+- Built automated trigger: when an incoming email matches an active lead, the SDR classifies intent, embeds Cal.com/Calendly links, and updates lead status to `REPLIED`.
+- Added `SmtpDispatcher` in `opensdr.campaigns.dispatcher` supporting TLS, authenticated SMTP servers, and MIME multipart messages.
+- Exposed `POST /api/v1/inbound/sync` endpoint for scheduled or webhook-based inbox synchronization.
+- Added 3 unit tests in `tests/test_listener.py`.
+
 ### Phase 10: Asynchronous Background Job Engine & Task Queue - 2026-10-31
 - Added `Job` and `JobStatus` models with tracking for progress percentage, processed items, and errors.
 - Implemented `JobQueueManager` for job creation, status updates, and completion recording.
