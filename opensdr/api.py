@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -15,6 +15,7 @@ from opensdr.db import (
 )
 from opensdr.enrichment.waterfall import WaterfallEnricher
 from opensdr.inbound.agent import InboundActionResponse, InboundSDRAgent
+from opensdr.inbound.listener import ImapConfig, ImapInboxListener
 from opensdr.jobs.queue import Job, JobQueueManager
 from opensdr.jobs.worker import run_batch_enrichment_worker
 from opensdr.models import Lead
@@ -58,6 +59,11 @@ class InboundReplyRequest(BaseModel):
     booking_url: str = "https://cal.com/team/15min"
 
 
+class InboundSyncRequest(BaseModel):
+    booking_url: str = "https://cal.com/team/15min"
+    incoming_messages: Optional[List[Dict[str, str]]] = None
+
+
 class BatchJobSubmitRequest(BaseModel):
     leads: List[Lead]
 
@@ -84,6 +90,7 @@ async def get_health_status() -> HealthResponse:
         dependencies={
             "database": "connected",
             "job_queue": "operational",
+            "inbox_listener": "operational",
             "enricher": "operational",
             "researcher": "operational",
             "copywriter": "operational",
@@ -213,3 +220,13 @@ async def process_inbound_reply_endpoint(req: InboundReplyRequest) -> InboundAct
     """Process incoming prospect reply, classify intent, and auto-generate scheduling response."""
     agent = InboundSDRAgent(booking_url=req.booking_url)
     return agent.process_reply(req.lead, req.reply_text)
+
+
+@app.post("/api/v1/inbound/sync", response_model=List[InboundActionResponse], tags=["Inbound SDR"])
+async def sync_inbound_replies_endpoint(
+    req: InboundSyncRequest,
+    db: Session = Depends(get_db)
+) -> List[InboundActionResponse]:
+    """Scan inbox for prospect replies and trigger autonomous scheduling actions."""
+    listener = ImapInboxListener(booking_url=req.booking_url)
+    return listener.sync_replies_for_session(db, req.incoming_messages)

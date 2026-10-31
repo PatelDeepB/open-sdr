@@ -1,4 +1,7 @@
 import abc
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 from typing import Dict, List, Optional
 import httpx
 from pydantic import BaseModel, Field
@@ -108,5 +111,53 @@ class WebhookDispatcher(BaseDispatcher):
                     sender_inbox.sent_today += 1
                     return True
                 return False
+        except Exception:
+            return False
+
+
+class SmtpDispatcher(BaseDispatcher):
+    """Production SMTP dispatcher supporting TLS and authenticated dispatch."""
+
+    def __init__(
+        self,
+        host: str,
+        port: int = 587,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        use_tls: bool = True
+    ):
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.use_tls = use_tls
+
+    async def send_message(
+        self,
+        sender_inbox: InboxAccount,
+        recipient_email: str,
+        subject: str,
+        body: str
+    ) -> bool:
+        if not sender_inbox.has_capacity:
+            return False
+
+        try:
+            msg = MIMEMultipart()
+            msg["From"] = f"{sender_inbox.display_name} <{sender_inbox.email}>"
+            msg["To"] = recipient_email
+            msg["Subject"] = subject
+            msg.attach(MIMEText(body, "plain", "utf-8"))
+
+            server = smtplib.SMTP(self.host, self.port, timeout=10.0)
+            if self.use_tls:
+                server.starttls()
+            if self.username and self.password:
+                server.login(self.username, self.password)
+
+            server.sendmail(sender_inbox.email, [recipient_email], msg.as_string())
+            server.quit()
+            sender_inbox.sent_today += 1
+            return True
         except Exception:
             return False
