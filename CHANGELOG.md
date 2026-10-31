@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 16: OpenAI Model Upgrade to GPT-6 Luna - 2026-10-31
+- Upgraded OpenAI default model ID from legacy 4o-mini to `gpt-6-luna` in `opensdr.ai`.
+- Added dynamic model selection via `OPENAI_MODEL` environment variable.
+- Updated `docker-compose.yml` to pass through `OPENAI_MODEL=${OPENAI_MODEL:-gpt-6-luna}`.
+- Added 2 unit tests in `tests/test_ai.py` verifying default and custom model configurations.
+- Updated documentation and environment variable references in `README.md`.
+
 ### Phase 15: GitHub SEO, Community Health & Open-Source Perfection - 2026-10-31
-- Added GitHub Actions CI test suite workflow in `.github/workflows/ci.yml` running on Python 3.10 and 3.11.
 - Added GitHub issue templates for bug reports and feature requests.
 - Added GitHub pull request template.
 - Added open-source community health standards: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
