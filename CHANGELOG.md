@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 4: Campaign Management, Outbound Sequencing, and Dispatch Engine - 2026-10-31
+- Added `InboxAccount` and `InboxRotator` for multi-inbox rotation and daily sending quota protection.
+- Built `BaseDispatcher`, `MockDispatcher` (for safe dry-runs/simulations), and `WebhookDispatcher` (for CRM/automation triggers).
+- Implemented `CampaignOrchestrator` for lead status tracking (`QUEUED`, `SENT`, `REPLIED`, `BOUNCED`).
+- Built automated real-time campaign statistics calculations (reply rates, bounce rates, sent counts).
+- Added 3 unit tests in `tests/test_campaigns.py`.
+
 ### Phase 3: AI Copywriter, Personalization Engine, and Deliverability Checker - 2026-10-31
 - Added `audit_email_deliverability` engine in `opensdr.copywriting.deliverability` with spam phrase penalty algorithms.
 - Implemented high-converting outbound templates (`quick_question`, `pas`, `followup_bump`, and `breakup`).
