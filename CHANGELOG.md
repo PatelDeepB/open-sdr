@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 6: Multi-Provider API Integrations and Credit Tracking - 2026-10-31
+- Added `HunterProvider` integrating with Hunter.io Email Finder API.
+- Added `ApolloProvider` integrating with Apollo.io People Match API.
+- Added credit and API call tracking on `WaterfallEnricher` (`call_counts`, `credits_saved`).
+- Added `create_standard_waterfall` factory for seamless multi-provider chaining from free to paid APIs.
+- Added 4 unit tests in `tests/test_providers.py`.
+
 ### Phase 5: REST API, CLI Interface, and End-to-End Pipeline - 2026-10-31
 - Implemented FastAPI REST API server in `opensdr.api` with explicit `/api/v1/` versioning and `/health` monitoring.
 - Built command-line interface in `opensdr.cli` with single prospect pipeline execution and CSV batch processing.

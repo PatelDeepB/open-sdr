@@ -1,6 +1,6 @@
 import abc
 import re
-from typing import List, Optional
+from typing import Dict, List, Optional
 import httpx
 
 from opensdr.enrichment.verifier import (
@@ -45,7 +45,6 @@ class WebsiteScraperProvider(BaseEnrichmentProvider):
         first = lead.first_name.lower()
         last = lead.last_name.lower()
 
-        # Match scraped emails to prospect name
         for candidate in found_emails:
             lower_candidate = candidate.lower()
             if first in lower_candidate or (last and last in lower_candidate):
@@ -116,10 +115,13 @@ class WaterfallEnricher:
             WebsiteScraperProvider(),
             PermutationHeuristicProvider()
         ]
+        self.call_counts: Dict[str, int] = {p.name: 0 for p in self.providers}
+        self.credits_saved: int = 0
 
     async def run(self, lead: Lead) -> Lead:
         """Execute the waterfall sequence across configured providers for a lead."""
-        for provider in self.providers:
+        for idx, provider in enumerate(self.providers):
+            self.call_counts[provider.name] = self.call_counts.get(provider.name, 0) + 1
             result = await provider.enrich_lead(lead)
             if result.found and result.email:
                 lead.email = result.email
@@ -127,8 +129,33 @@ class WaterfallEnricher:
                 lead.confidence_score = result.confidence
                 lead.metadata["enriched_by"] = result.provider_name
                 lead.metadata["enrichment_details"] = result.extra_details
+                
+                # Count remaining skipped providers as credits/calls saved
+                skipped = len(self.providers) - (idx + 1)
+                self.credits_saved += skipped
+                lead.metadata["waterfall_steps_skipped"] = skipped
                 return lead
 
         lead.email_status = EmailStatus.INVALID
         lead.confidence_score = 0.0
         return lead
+
+
+def create_standard_waterfall(
+    hunter_api_key: Optional[str] = None,
+    apollo_api_key: Optional[str] = None
+) -> WaterfallEnricher:
+    """Construct a full enterprise-tier waterfall cascading from free to paid APIs."""
+    from opensdr.enrichment.providers.apollo import ApolloProvider
+    from opensdr.enrichment.providers.hunter import HunterProvider
+
+    providers: List[BaseEnrichmentProvider] = [
+        WebsiteScraperProvider(),
+        PermutationHeuristicProvider()
+    ]
+    if hunter_api_key:
+        providers.append(HunterProvider(api_key=hunter_api_key))
+    if apollo_api_key:
+        providers.append(ApolloProvider(api_key=apollo_api_key))
+
+    return WaterfallEnricher(providers=providers)
