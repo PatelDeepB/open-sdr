@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 1: Core Models and Waterfall Enrichment Engine - 2026-10-31
+- Added domain models: `Lead`, `Company`, `EmailStatus`, `CampaignStatus`, `EmailVerificationResult`, and `EnrichmentResult`.
+- Implemented email permutation generator supporting standard corporate formats.
+- Implemented multi-tier email verifier (RFC syntax checking, disposable domain detection, and DNS MX record validation).
+- Implemented `WaterfallEnricher` with cascading provider support (`WebsiteScraperProvider`, `PermutationHeuristicProvider`).
+- Added unit tests covering permutation generation, disposable detection, syntax parsing, and waterfall cascading.
+
 ### Initial Setup - 2026-10-31
 - Created base project repository structure.
 - Added MIT License and `.gitignore`.
