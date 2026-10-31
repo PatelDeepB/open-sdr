@@ -12,6 +12,10 @@
 
 OpenSDR replicates the core feature set of high-ticket outbound sales platforms without per-credit fees or vendor lock-in.
 
+<p align="center">
+  <img src="docs/images/opensdr-preview.svg" alt="OpenSDR Waterfall Spreadsheet Grid and Autonomous AI SDR Interface" width="100%" />
+</p>
+
 ---
 
 ## Do I Need Any API Keys to Use OpenSDR?
