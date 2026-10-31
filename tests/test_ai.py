@@ -37,6 +37,22 @@ def test_should_detect_openai_provider_when_key_present():
     assert provider == "openai"
 
 
+def test_should_default_openai_model_to_gpt_6_luna():
+    # Arrange
+    client = UniversalLLMClient(openai_api_key="mock_openai_key")
+
+    # Assert
+    assert client.openai_model == "gpt-6-luna"
+
+
+def test_should_permit_custom_openai_model():
+    # Arrange
+    client = UniversalLLMClient(openai_api_key="mock_openai_key", openai_model="gpt-6-custom")
+
+    # Assert
+    assert client.openai_model == "gpt-6-custom"
+
+
 @pytest.mark.asyncio
 async def test_should_return_fallback_response_without_keys():
     # Arrange
