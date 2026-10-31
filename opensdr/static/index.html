@@ -28,16 +28,16 @@
             <div class="flex items-center space-x-2.5">
                 <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleCsvFileSelected(event)" />
                 <button onclick="document.getElementById('csvFileInput').click()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-                    📥 Import CSV
+                    Import CSV
                 </button>
                 <button onclick="exportToCsv()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-                    📤 Export CSV
+                    Export CSV
                 </button>
                 <button onclick="openAddModal()" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition">
                     + Add Prospect
                 </button>
                 <button onclick="runBatchBackgroundJob()" id="runBatchBtn" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
-                    ⚡ Run Batch Worker
+                    Run Batch Worker
                 </button>
             </div>
         </div>
@@ -60,28 +60,28 @@
     <div class="border-b border-slate-800/80 bg-slate-900/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-md bg-blue-500/10 text-blue-400 text-sm">👥</div>
+                <div class="p-2 rounded-md bg-blue-500/10 text-blue-400 text-sm">Leads</div>
                 <div>
                     <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Database Leads</p>
                     <p class="text-base font-bold text-slate-100" id="statTotal">0</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-md bg-emerald-500/10 text-emerald-400 text-sm">✅</div>
+                <div class="p-2 rounded-md bg-emerald-500/10 text-emerald-400 text-sm">Verified</div>
                 <div>
-                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Verified Deliverable</p>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Deliverable MX</p>
                     <p class="text-base font-bold text-slate-100" id="statVerified">0</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-md bg-indigo-500/10 text-indigo-400 text-sm">⚡</div>
+                <div class="p-2 rounded-md bg-indigo-500/10 text-indigo-400 text-sm">Engine</div>
                 <div>
                     <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Storage Engine</p>
-                    <p class="text-base font-bold text-emerald-400">SQLite / PostgreSQL</p>
+                    <p class="text-base font-bold text-emerald-400">SQLite / Postgres</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-md bg-amber-500/10 text-amber-400 text-sm">📅</div>
+                <div class="p-2 rounded-md bg-amber-500/10 text-amber-400 text-sm">Replies</div>
                 <div>
                     <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Inbound Replies</p>
                     <p class="text-base font-bold text-amber-300" id="statReplied">0</p>
@@ -93,10 +93,13 @@
     <!-- Main Spreadsheet Grid -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
         <!-- Filter Tabs -->
-        <div class="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs">
-            <button onclick="setFilter('ALL')" id="filterAll" class="px-3 py-1 rounded-md bg-slate-800 text-white font-medium">All Prospects</button>
-            <button onclick="setFilter('VERIFIED')" id="filterVerified" class="px-3 py-1 rounded-md text-slate-400 hover:text-white">Verified</button>
-            <button onclick="setFilter('REPLIED')" id="filterReplied" class="px-3 py-1 rounded-md text-slate-400 hover:text-white">Replied / Scheduled</button>
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-xs">
+            <div class="flex items-center gap-2">
+                <button onclick="setFilter('ALL')" id="filterAll" class="px-3 py-1 rounded-md bg-slate-800 text-white font-medium">All Prospects</button>
+                <button onclick="setFilter('VERIFIED')" id="filterVerified" class="px-3 py-1 rounded-md text-slate-400 hover:text-white">Verified</button>
+                <button onclick="setFilter('REPLIED')" id="filterReplied" class="px-3 py-1 rounded-md text-slate-400 hover:text-white">Replied / Scheduled</button>
+            </div>
+            <p class="text-slate-500 text-[11px]">Click on any prospect to inspect full research and email copies</p>
         </div>
 
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
@@ -121,6 +124,139 @@
             </div>
         </div>
     </main>
+
+    <!-- Lead Detail Inspector Modal (Clay Style) -->
+    <div id="inspectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-indigo-600/30 text-indigo-300 font-bold flex items-center justify-center text-sm border border-indigo-500/30" id="inspectAvatar">
+                        P
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span id="inspectFullName">Prospect Name</span>
+                            <span id="inspectStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full"></span>
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            <span id="inspectCompany" class="font-medium text-slate-300">Company</span> &bull; 
+                            <span id="inspectDomain" class="font-mono text-indigo-400">domain.com</span>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeInspectModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex border-b border-slate-800 text-xs gap-4 pb-2">
+                <button onclick="switchInspectTab('cadence')" id="tabBtnCadence" class="font-semibold text-indigo-400 border-b-2 border-indigo-500 pb-1">AI Email Cadence (3-Step)</button>
+                <button onclick="switchInspectTab('firmographics')" id="tabBtnFirmographics" class="font-medium text-slate-400 hover:text-slate-200 pb-1">Research & Tech Stack</button>
+                <button onclick="switchInspectTab('deliverability')" id="tabBtnDeliverability" class="font-medium text-slate-400 hover:text-slate-200 pb-1">Deliverability Audit</button>
+            </div>
+
+            <!-- Tab Content 1: AI Email Cadence -->
+            <div id="inspectCadenceTab" class="space-y-4 text-xs font-sans">
+                <!-- Step 1: Initial Pitch -->
+                <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="font-bold text-indigo-300 text-xs">Step 1: Initial Outreach</span>
+                        <button onclick="copyCadenceEmail('step1')" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Copy Email</button>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Subject:</label>
+                        <p id="inspectStep1Subject" class="text-white font-medium bg-slate-900/60 p-1.5 rounded border border-slate-800/60 font-mono text-[11px]"></p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Body:</label>
+                        <pre id="inspectStep1Body" class="p-2.5 bg-slate-900/60 rounded border border-slate-800/60 whitespace-pre-wrap font-sans text-slate-200 text-xs leading-relaxed"></pre>
+                    </div>
+                </div>
+
+                <!-- Step 2: Follow-up Bump -->
+                <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="font-bold text-indigo-300 text-xs">Step 2: Follow-up Bump (Day 3)</span>
+                        <button onclick="copyCadenceEmail('step2')" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Copy Email</button>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Subject:</label>
+                        <p id="inspectStep2Subject" class="text-white font-medium bg-slate-900/60 p-1.5 rounded border border-slate-800/60 font-mono text-[11px]"></p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Body:</label>
+                        <pre id="inspectStep2Body" class="p-2.5 bg-slate-900/60 rounded border border-slate-800/60 whitespace-pre-wrap font-sans text-slate-200 text-xs leading-relaxed"></pre>
+                    </div>
+                </div>
+
+                <!-- Step 3: Breakup -->
+                <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="font-bold text-indigo-300 text-xs">Step 3: Breakup Email (Day 7)</span>
+                        <button onclick="copyCadenceEmail('step3')" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Copy Email</button>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Subject:</label>
+                        <p id="inspectStep3Subject" class="text-white font-medium bg-slate-900/60 p-1.5 rounded border border-slate-800/60 font-mono text-[11px]"></p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-0.5">Body:</label>
+                        <pre id="inspectStep3Body" class="p-2.5 bg-slate-900/60 rounded border border-slate-800/60 whitespace-pre-wrap font-sans text-slate-200 text-xs leading-relaxed"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Research & Firmographics -->
+            <div id="inspectFirmographicsTab" class="hidden space-y-3 text-xs font-sans">
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                    <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider">Contact & Enrichment</h4>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Enriched Email:</span>
+                            <span id="inspectEmailVal" class="font-mono text-emerald-400 font-semibold"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Permutations Tested:</span>
+                            <span id="inspectPermutationsVal" class="font-mono text-slate-300"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider">Detected Tech Stack</h4>
+                    <div id="inspectTechList" class="flex flex-wrap gap-1.5 pt-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider">Autonomous Company Summary</h4>
+                    <p id="inspectCompanySummary" class="text-slate-300 leading-relaxed text-xs"></p>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Deliverability Audit -->
+            <div id="inspectDeliverabilityTab" class="hidden space-y-3 text-xs font-sans">
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-200 uppercase tracking-wider text-xs">Deliverability Score</span>
+                        <span id="inspectSpamBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">100 / 100 Deliverable</span>
+                    </div>
+                    <div id="inspectSpamIssues" class="space-y-1.5 pt-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+                <div class="text-[11px] text-slate-400" id="inspectCopyFeedback"></div>
+                <div class="flex gap-2">
+                    <button onclick="closeInspectModal()" class="px-3.5 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Close</button>
+                    <button onclick="runInspectLeadPipeline()" id="inspectRunBtn" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white">Re-run Pipeline</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Prospect Modal -->
     <div id="addModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -159,7 +295,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    🤖 Inbound SDR Agent (11x Test Simulator)
+                    Inbound SDR Agent (11x Test Simulator)
                 </h3>
                 <button onclick="closeReplyModal()" class="text-slate-400 hover:text-white">&times;</button>
             </div>
@@ -194,6 +330,7 @@
         let dbLeads = [];
         let activeFilter = "ALL";
         let activeLead = null;
+        let inspectingLead = null;
 
         async function fetchLeadsFromDb() {
             try {
@@ -245,16 +382,16 @@
 
             filtered.forEach((l) => {
                 const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-800/40 transition";
+                tr.className = "hover:bg-slate-800/40 transition cursor-pointer group";
                 const techStr = l.company_info?.tech_stack?.join(", ") || "-";
                 const subjectStr = l.generated_copy?.initial_subject || "-";
 
                 tr.innerHTML = `
                     <td class="py-3 px-4 text-center text-slate-500 font-mono text-[11px]">${l.id || "-"}</td>
-                    <td class="py-3 px-4 font-sans">
-                        <div class="font-semibold text-slate-100">${l.first_name} ${l.last_name}</div>
+                    <td class="py-3 px-4 font-sans" onclick="openInspectModal('${l.id}')">
+                        <div class="font-semibold text-slate-100 group-hover:text-indigo-400 transition">${l.first_name} ${l.last_name}</div>
                     </td>
-                    <td class="py-3 px-4 font-sans">
+                    <td class="py-3 px-4 font-sans" onclick="openInspectModal('${l.id}')">
                         <div class="text-slate-200 font-medium">${l.company_name}</div>
                         <div class="text-[11px] text-slate-500">${l.domain}</div>
                     </td>
@@ -271,6 +408,7 @@
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${getStatusClass(l.campaign_status || l.email_status)}">${l.campaign_status || l.email_status}</span>
                     </td>
                     <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button onclick="openInspectModal('${l.id}')" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 font-sans transition">Inspect</button>
                         <button onclick="runSinglePipeline('${l.id}')" class="px-2.5 py-1 text-[11px] rounded bg-indigo-600/80 hover:bg-indigo-600 text-white font-sans transition">Run</button>
                         <button onclick="openReplyModalById('${l.id}')" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-sans transition">Reply</button>
                         <button onclick="deleteLeadById('${l.id}')" class="px-2 py-1 text-[11px] rounded bg-red-900/30 hover:bg-red-800/60 text-red-300 font-sans transition">✕</button>
@@ -290,6 +428,120 @@
             if (s === "REPLIED") return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
             if (s === "BOUNCED") return "bg-red-500/10 text-red-400 border border-red-500/20";
             return "bg-slate-800 text-slate-400 border border-slate-700";
+        }
+
+        function openInspectModal(id) {
+            inspectingLead = dbLeads.find(l => String(l.id) === String(id));
+            if (!inspectingLead) return;
+
+            document.getElementById("inspectAvatar").innerText = (inspectingLead.first_name[0] || "P").toUpperCase();
+            document.getElementById("inspectFullName").innerText = `${inspectingLead.first_name} ${inspectingLead.last_name || ""}`;
+            document.getElementById("inspectCompany").innerText = inspectingLead.company_name;
+            document.getElementById("inspectDomain").innerText = inspectingLead.domain;
+            
+            const statusBadge = document.getElementById("inspectStatusBadge");
+            const st = inspectingLead.campaign_status || inspectingLead.email_status || "PENDING";
+            statusBadge.innerText = st;
+            statusBadge.className = `text-[10px] font-semibold px-2 py-0.5 rounded-full ${getStatusClass(st)}`;
+
+            // Populate Cadence Tab
+            const copy = inspectingLead.generated_copy || {};
+            document.getElementById("inspectStep1Subject").innerText = copy.initial_subject || "(Pipeline not run yet)";
+            document.getElementById("inspectStep1Body").innerText = copy.initial_body || "(Run pipeline to generate step 1 copy)";
+            document.getElementById("inspectStep2Subject").innerText = copy.followup_subject || "(Followup not synthesized yet)";
+            document.getElementById("inspectStep2Body").innerText = copy.followup_body || "(Run pipeline to generate followup bump)";
+            document.getElementById("inspectStep3Subject").innerText = copy.breakup_subject || "(Breakup not synthesized yet)";
+            document.getElementById("inspectStep3Body").innerText = copy.breakup_body || "(Run pipeline to generate breakup email)";
+
+            // Populate Firmographics Tab
+            document.getElementById("inspectEmailVal").innerText = inspectingLead.email || "Pending verification";
+            document.getElementById("inspectPermutationsVal").innerText = inspectingLead.permutations_tested?.length || 0;
+            
+            const techContainer = document.getElementById("inspectTechList");
+            techContainer.innerHTML = "";
+            const techStack = inspectingLead.company_info?.tech_stack || [];
+            if (techStack.length === 0) {
+                techContainer.innerHTML = "<span class='text-slate-500 text-xs italic'>No technologies detected yet. Run pipeline to crawl.</span>";
+            } else {
+                techStack.forEach(t => {
+                    const pill = document.createElement("span");
+                    pill.className = "px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-mono";
+                    pill.innerText = t;
+                    techContainer.appendChild(pill);
+                });
+            }
+            document.getElementById("inspectCompanySummary").innerText = inspectingLead.company_info?.summary || "No firmographic summary available yet.";
+
+            // Populate Deliverability Tab
+            const audit = inspectingLead.deliverability_audit || {};
+            const spamBadge = document.getElementById("inspectSpamBadge");
+            const score = audit.spam_score !== undefined ? (100 - (audit.spam_score * 20)) : 100;
+            spamBadge.innerText = `${score} / 100 Deliverability`;
+            
+            const issuesContainer = document.getElementById("inspectSpamIssues");
+            issuesContainer.innerHTML = "";
+            const issues = audit.spam_flags || [];
+            if (issues.length === 0) {
+                issuesContainer.innerHTML = "<p class='text-emerald-400 text-xs font-medium'>Clean: Zero spam trigger words or deliverability risks identified.</p>";
+            } else {
+                issues.forEach(i => {
+                    const row = document.createElement("p");
+                    row.className = "text-amber-400 text-xs";
+                    row.innerText = `Flag: ${i}`;
+                    issuesContainer.appendChild(row);
+                });
+            }
+
+            document.getElementById("inspectCopyFeedback").innerText = "";
+            switchInspectTab('cadence');
+            document.getElementById("inspectModal").classList.remove("hidden");
+        }
+
+        function closeInspectModal() {
+            document.getElementById("inspectModal").classList.add("hidden");
+            inspectingLead = null;
+        }
+
+        function switchInspectTab(tab) {
+            const tabs = ['cadence', 'firmographics', 'deliverability'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`inspect${t.charAt(0).toUpperCase() + t.slice(1)}Tab`);
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tab) {
+                    el.classList.remove("hidden");
+                    btn.className = "font-semibold text-indigo-400 border-b-2 border-indigo-500 pb-1";
+                } else {
+                    el.classList.add("hidden");
+                    btn.className = "font-medium text-slate-400 hover:text-slate-200 pb-1";
+                }
+            });
+        }
+
+        function copyCadenceEmail(step) {
+            if (!inspectingLead || !inspectingLead.generated_copy) return;
+            const copy = inspectingLead.generated_copy;
+            let text = "";
+            if (step === 'step1') text = `Subject: ${copy.initial_subject}\n\n${copy.initial_body}`;
+            if (step === 'step2') text = `Subject: ${copy.followup_subject}\n\n${copy.followup_body}`;
+            if (step === 'step3') text = `Subject: ${copy.breakup_subject}\n\n${copy.breakup_body}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const fb = document.getElementById("inspectCopyFeedback");
+                fb.innerText = `Copied ${step.toUpperCase()} email to clipboard!`;
+                fb.className = "text-[11px] text-emerald-400 font-semibold";
+                setTimeout(() => { fb.innerText = ""; }, 2500);
+            });
+        }
+
+        async function runInspectLeadPipeline() {
+            if (!inspectingLead) return;
+            const btn = document.getElementById("inspectRunBtn");
+            btn.innerText = "Running...";
+            btn.disabled = true;
+            await runSinglePipeline(inspectingLead.id);
+            openInspectModal(inspectingLead.id);
+            btn.innerText = "Re-run Pipeline";
+            btn.disabled = false;
         }
 
         async function runSinglePipeline(id) {
@@ -312,6 +564,9 @@
                 });
                 if (res.ok) {
                     await fetchLeadsFromDb();
+                    if (inspectingLead && String(inspectingLead.id) === String(id)) {
+                        openInspectModal(id);
+                    }
                 }
             } catch(e) {
                 console.error("Error running pipeline:", e);
@@ -320,9 +575,136 @@
             }
         }
 
+        async function deleteLeadById(id) {
+            if (!confirm("Are you sure you want to delete this prospect?")) return;
+            try {
+                await fetch(`/api/v1/leads/${id}`, { method: "DELETE" });
+                await fetchLeadsFromDb();
+            } catch(e) {
+                console.error("Error deleting lead:", e);
+            }
+        }
+
+        function setFilter(filter) {
+            activeFilter = filter;
+            document.getElementById("filterAll").className = filter === "ALL" ? "px-3 py-1 rounded-md bg-slate-800 text-white font-medium" : "px-3 py-1 rounded-md text-slate-400 hover:text-white";
+            document.getElementById("filterVerified").className = filter === "VERIFIED" ? "px-3 py-1 rounded-md bg-slate-800 text-white font-medium" : "px-3 py-1 rounded-md text-slate-400 hover:text-white";
+            document.getElementById("filterReplied").className = filter === "REPLIED" ? "px-3 py-1 rounded-md bg-slate-800 text-white font-medium" : "px-3 py-1 rounded-md text-slate-400 hover:text-white";
+            renderTable();
+        }
+
+        function openAddModal() {
+            document.getElementById("addModal").classList.remove("hidden");
+        }
+
+        function closeAddModal() {
+            document.getElementById("addModal").classList.add("hidden");
+            document.getElementById("addFirstName").value = "";
+            document.getElementById("addLastName").value = "";
+            document.getElementById("addCompany").value = "";
+            document.getElementById("addDomain").value = "";
+        }
+
+        async function saveNewProspect() {
+            const first = document.getElementById("addFirstName").value.trim();
+            const last = document.getElementById("addLastName").value.trim();
+            const company = document.getElementById("addCompany").value.trim();
+            const domain = document.getElementById("addDomain").value.trim();
+
+            if (!first || !company || !domain) {
+                alert("Please fill in first name, company name, and domain.");
+                return;
+            }
+
+            try {
+                await fetch("/api/v1/leads", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        first_name: first,
+                        last_name: last,
+                        company_name: company,
+                        domain: domain
+                    })
+                });
+                closeAddModal();
+                await fetchLeadsFromDb();
+            } catch(e) {
+                alert("Error saving prospect.");
+            }
+        }
+
+        function handleCsvFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
+                if (rows.length < 2) return;
+
+                const headers = rows[0].split(",").map(h => h.trim().toLowerCase().replace(/"/g, ''));
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(",").map(v => v.trim().replace(/"/g, ''));
+                    const rowObj = {};
+                    headers.forEach((h, idx) => { rowObj[h] = values[idx] || ""; });
+
+                    const leadData = {
+                        first_name: rowObj.first_name || rowObj.firstname || rowObj.name || "Prospect",
+                        last_name: rowObj.last_name || rowObj.lastname || "",
+                        company_name: rowObj.company_name || rowObj.company || "Enterprise",
+                        domain: rowObj.domain || rowObj.website || "example.com"
+                    };
+
+                    await fetch("/api/v1/leads", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(leadData)
+                    });
+                }
+                await fetchLeadsFromDb();
+                alert(`Successfully imported ${rows.length - 1} prospects!`);
+            };
+            reader.readAsText(file);
+        }
+
+        function exportToCsv() {
+            if (dbLeads.length === 0) {
+                alert("No leads to export.");
+                return;
+            }
+
+            const headers = ["ID", "First Name", "Last Name", "Company", "Domain", "Email", "Status", "Tech Stack", "Subject Line"];
+            const rows = dbLeads.map(l => [
+                l.id,
+                `"${l.first_name}"`,
+                `"${l.last_name || ""}"`,
+                `"${l.company_name}"`,
+                `"${l.domain}"`,
+                `"${l.email || ""}"`,
+                `"${l.campaign_status || l.email_status}"`,
+                `"${(l.company_info?.tech_stack || []).join("; ")}"`,
+                `"${(l.generated_copy?.initial_subject || "").replace(/"/g, '""')}"`
+            ]);
+
+            const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `opensdr_leads_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         async function runBatchBackgroundJob() {
+            if (dbLeads.length === 0) {
+                alert("No leads in database to process.");
+                return;
+            }
+
             const btn = document.getElementById("runBatchBtn");
-            btn.innerText = "Submitting Job...";
             btn.disabled = true;
 
             try {
@@ -334,148 +716,45 @@
 
                 if (res.ok) {
                     const job = await res.json();
-                    document.getElementById("activeJobId").innerText = job.id;
-                    document.getElementById("activeJobTotal").innerText = job.total_items;
-                    document.getElementById("jobProgressBanner").classList.remove("hidden");
-                    pollJobStatus(job.id);
+                    trackJobProgress(job.id);
                 }
             } catch(e) {
-                alert("Failed to submit batch background job");
+                alert("Failed to submit batch job.");
+                btn.disabled = false;
             }
-
-            btn.innerText = "⚡ Run Batch Worker";
-            btn.disabled = false;
         }
 
-        function pollJobStatus(jobId) {
+        function trackJobProgress(jobId) {
+            const banner = document.getElementById("jobProgressBanner");
+            banner.classList.remove("hidden");
+            document.getElementById("activeJobId").innerText = jobId;
+
             const interval = setInterval(async () => {
                 try {
                     const res = await fetch(`/api/v1/jobs/${jobId}`);
                     if (res.ok) {
                         const job = await res.json();
                         document.getElementById("activeJobProcessed").innerText = job.processed_items;
-                        document.getElementById("activeJobPct").innerText = job.progress_percent;
-                        document.getElementById("activeProgressBar").style.width = `${job.progress_percent}%`;
+                        document.getElementById("activeJobTotal").innerText = job.total_items;
+                        const pct = Math.round((job.processed_items / job.total_items) * 100);
+                        document.getElementById("activeJobPct").innerText = pct;
+                        document.getElementById("activeProgressBar").style.width = `${pct}%`;
 
                         if (job.status === "completed" || job.status === "failed") {
                             clearInterval(interval);
                             setTimeout(() => {
-                                document.getElementById("jobProgressBanner").classList.add("hidden");
-                            }, 4000);
-                            await fetchLeadsFromDb();
+                                banner.classList.add("hidden");
+                                document.getElementById("runBatchBtn").disabled = false;
+                                fetchLeadsFromDb();
+                            }, 1200);
                         }
                     }
                 } catch(e) {
                     clearInterval(interval);
+                    banner.classList.add("hidden");
+                    document.getElementById("runBatchBtn").disabled = false;
                 }
             }, 1000);
-        }
-
-        async function deleteLeadById(id) {
-            if (!confirm("Delete prospect from database?")) return;
-            try {
-                const res = await fetch(`/api/v1/leads/${id}`, { method: "DELETE" });
-                if (res.ok) {
-                    await fetchLeadsFromDb();
-                }
-            } catch(e) {
-                alert("Failed to delete lead");
-            }
-        }
-
-        function openAddModal() {
-            document.getElementById("addModal").classList.remove("hidden");
-        }
-
-        function closeAddModal() {
-            document.getElementById("addModal").classList.add("hidden");
-        }
-
-        async function saveNewProspect() {
-            const first = document.getElementById("addFirstName").value.trim();
-            const last = document.getElementById("addLastName").value.trim();
-            const company = document.getElementById("addCompany").value.trim();
-            const domain = document.getElementById("addDomain").value.trim();
-
-            if (!first || !company || !domain) {
-                alert("Please fill in first name, company, and domain.");
-                return;
-            }
-
-            try {
-                const res = await fetch("/api/v1/leads", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        first_name: first,
-                        last_name: last,
-                        company_name: company,
-                        domain: domain
-                    })
-                });
-                if (res.ok) {
-                    closeAddModal();
-                    await fetchLeadsFromDb();
-                }
-            } catch(e) {
-                alert("Error saving prospect to database");
-            }
-        }
-
-        function exportToCsv() {
-            if (dbLeads.length === 0) return alert("No leads to export.");
-            let csv = "id,first_name,last_name,company_name,domain,email,email_status,tech_stack,subject\n";
-            dbLeads.forEach(l => {
-                const tech = (l.company_info?.tech_stack || []).join(";");
-                const subject = (l.generated_copy?.initial_subject || "").replace(/"/g, '""');
-                csv += `"${l.id}","${l.first_name}","${l.last_name}","${l.company_name}","${l.domain}","${l.email || ''}","${l.email_status}","${tech}","${subject}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `opensdr_leads_${Date.now()}.csv`;
-            a.click();
-        }
-
-        async function handleCsvFileSelected(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const text = await file.text();
-            const lines = text.split("\n").filter(l => l.trim().length > 0);
-            if (lines.length <= 1) return alert("CSV file is empty");
-
-            const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(",").map(c => c.trim().replace(/^"|"$/g, ''));
-                const obj = {};
-                headers.forEach((h, idx) => { obj[h] = cols[idx] || ""; });
-
-                await fetch("/api/v1/leads", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        first_name: obj.first_name || obj.name || "Lead",
-                        last_name: obj.last_name || "",
-                        company_name: obj.company_name || obj.company || "Company",
-                        domain: obj.domain || ""
-                    })
-                });
-            }
-            alert(`Imported ${lines.length - 1} prospects from CSV!`);
-            await fetchLeadsFromDb();
-        }
-
-        function setFilter(f) {
-            activeFilter = f;
-            document.querySelectorAll("[id^=filter]").forEach(btn => {
-                btn.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white";
-            });
-            const activeBtn = document.getElementById(`filter${f.charAt(0) + f.slice(1).toLowerCase()}`);
-            if (activeBtn) activeBtn.className = "px-3 py-1 rounded-md bg-slate-800 text-white font-medium";
-            renderTable();
         }
 
         function openReplyModalById(id) {

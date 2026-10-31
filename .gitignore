@@ -21,7 +21,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual environments & secrets
 .env
 .venv
 env/
@@ -44,3 +44,7 @@ data/*.sqlite
 data/*.db
 data/exports/
 *.log
+
+# Local development tracking logs
+CHANGELOG.md
+.local_changelog.md
