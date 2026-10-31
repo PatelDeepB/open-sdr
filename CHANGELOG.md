@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 3: AI Copywriter, Personalization Engine, and Deliverability Checker - 2026-10-31
+- Added `audit_email_deliverability` engine in `opensdr.copywriting.deliverability` with spam phrase penalty algorithms.
+- Implemented high-converting outbound templates (`quick_question`, `pas`, `followup_bump`, and `breakup`).
+- Built `CopywriterAgent` to generate personalized 3-step outreach cadences using researched firmographic data.
+- Structured automated icebreaker creation driven by detected tech stack and company signals.
+- Added 4 unit tests in `tests/test_copywriting.py`.
+
 ### Phase 2: Autonomous Web Research Agent (Claygent Equivalent) - 2026-10-31
 - Implemented HTML cleaner and metadata extractor in `opensdr.research.crawler`.
 - Added automated tech stack detection (HubSpot, Salesforce, Stripe, Shopify, React, AWS, etc.).
