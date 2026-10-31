@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 12: Full Web UI Persistence, CSV Import/Export & Live Job Polling - 2026-10-31
+- Connected the web spreadsheet UI dynamically to `GET /api/v1/leads` database records on load.
+- Implemented in-browser CSV import parsing and bulk creation via `POST /api/v1/leads`.
+- Implemented in-browser CSV export with all enriched attributes and AI outreach copy.
+- Integrated background task progress banner polling `GET /api/v1/jobs/{id}` with live progress percentage.
+- Added prospect creation modal, deletion controls, and status filtering tabs (All, Verified, Replied).
+- Updated `README.md` with enterprise architecture and user workflows.
+
 ### Phase 11: Real-Time IMAP Mailbox Listener & Production SMTP Dispatcher - 2026-10-31
 - Added `ImapInboxListener` in `opensdr.inbound.listener` for monitoring unread emails and thread responses.
 - Implemented automated matching of incoming emails against database prospects.
