@@ -1,5 +1,7 @@
+from pathlib import Path
 from typing import Any, Dict
 from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from opensdr.copywriting.writer import CopywriterAgent
@@ -13,6 +15,8 @@ app = FastAPI(
     version="0.1.0",
     description="Open-source alternative to Clay and 11x: waterfall enrichment, web research, AI personalization, and inbound SDR."
 )
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 enricher = WaterfallEnricher()
 researcher = ResearchAgent()
@@ -38,6 +42,19 @@ class InboundReplyRequest(BaseModel):
     lead: Lead
     reply_text: str
     booking_url: str = "https://cal.com/team/15min"
+
+
+@app.get("/", response_class=FileResponse, tags=["Dashboard"])
+@app.get("/dashboard", response_class=FileResponse, tags=["Dashboard"])
+async def serve_dashboard() -> FileResponse:
+    """Serve interactive Clay-style spreadsheet grid UI."""
+    index_path = STATIC_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dashboard UI not found."
+        )
+    return FileResponse(index_path)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["System"])
