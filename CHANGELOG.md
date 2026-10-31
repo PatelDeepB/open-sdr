@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 9: Persistent Database & ORM Storage - 2026-10-31
+- Added `LeadRecord` SQLAlchemy ORM model and SQLite/PostgreSQL storage in `opensdr.db`.
+- Added bidirectional serialization between database records and Pydantic `Lead` models.
+- Implemented `save_or_update_lead`, `list_leads`, and session generator `get_db`.
+- Added CRUD endpoints in `opensdr.api`: `GET /api/v1/leads`, `POST /api/v1/leads`, and `DELETE /api/v1/leads/{id}`.
+- Configured automated persistence in `POST /api/v1/pipeline` so all enriched leads persist across restarts.
+- Added 3 database and API tests in `tests/test_db.py`.
+
 ### Phase 8: Interactive Spreadsheet Web UI and Execution Grid - 2026-10-31
 - Created interactive Clay-style web spreadsheet dashboard in `opensdr/static/index.html`.
 - Implemented real-time single-row and batch waterfall execution from the web browser.
