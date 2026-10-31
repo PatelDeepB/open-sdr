@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 7: Autonomous Inbound Reply Classifier and Calendar Booking Agent - 2026-10-31
+- Added `classify_inbound_reply` in `opensdr.inbound.classifier` to classify prospect intent (`INTERESTED`, `OBJECTION`, `WRONG_PERSON`, `OUT_OF_OFFICE`, `UNSUBSCRIBE`).
+- Added entity extraction for referral colleague emails within incoming messages.
+- Implemented `InboundSDRAgent` that auto-generates context-aware replies with dynamic calendar booking links (Cal.com / Calendly).
+- Added auto-creation of referral `Lead` records when a prospect refers a colleague.
+- Added suppression list flag for unsubscribe requests.
+- Exposed `POST /api/v1/inbound/reply` API endpoint.
+- Added 6 unit tests in `tests/test_inbound.py`.
+
 ### Phase 6: Multi-Provider API Integrations and Credit Tracking - 2026-10-31
 - Added `HunterProvider` integrating with Hunter.io Email Finder API.
 - Added `ApolloProvider` integrating with Apollo.io People Match API.

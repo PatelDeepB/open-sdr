@@ -4,18 +4,20 @@ from pydantic import BaseModel
 
 from opensdr.copywriting.writer import CopywriterAgent
 from opensdr.enrichment.waterfall import WaterfallEnricher
+from opensdr.inbound.agent import InboundActionResponse, InboundSDRAgent
 from opensdr.models import Lead
 from opensdr.research.agent import ResearchAgent
 
 app = FastAPI(
     title="OpenSDR API",
     version="0.1.0",
-    description="Open-source alternative to Clay: waterfall enrichment, web research, and AI personalization."
+    description="Open-source alternative to Clay and 11x: waterfall enrichment, web research, AI personalization, and inbound SDR."
 )
 
 enricher = WaterfallEnricher()
 researcher = ResearchAgent()
 copywriter = CopywriterAgent()
+inbound_sdr = InboundSDRAgent()
 
 
 class HealthResponse(BaseModel):
@@ -32,6 +34,12 @@ class PipelineRequest(BaseModel):
     template_name: str = "quick_question"
 
 
+class InboundReplyRequest(BaseModel):
+    lead: Lead
+    reply_text: str
+    booking_url: str = "https://cal.com/team/15min"
+
+
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def get_health_status() -> HealthResponse:
     """Lightweight health check endpoint reflecting real dependency status."""
@@ -41,7 +49,8 @@ async def get_health_status() -> HealthResponse:
         dependencies={
             "enricher": "operational",
             "researcher": "operational",
-            "copywriter": "operational"
+            "copywriter": "operational",
+            "inbound_sdr": "operational"
         }
     )
 
@@ -88,3 +97,10 @@ async def run_full_pipeline_endpoint(req: PipelineRequest) -> Lead:
     lead = await researcher.analyze(lead)
     lead = copywriter.process_lead(lead, template_name=req.template_name)
     return lead
+
+
+@app.post("/api/v1/inbound/reply", response_model=InboundActionResponse, tags=["Inbound SDR"])
+async def process_inbound_reply_endpoint(req: InboundReplyRequest) -> InboundActionResponse:
+    """Process incoming prospect reply, classify intent, and auto-generate scheduling response."""
+    agent = InboundSDRAgent(booking_url=req.booking_url)
+    return agent.process_reply(req.lead, req.reply_text)
