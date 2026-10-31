@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 5: REST API, CLI Interface, and End-to-End Pipeline - 2026-10-31
+- Implemented FastAPI REST API server in `opensdr.api` with explicit `/api/v1/` versioning and `/health` monitoring.
+- Built command-line interface in `opensdr.cli` with single prospect pipeline execution and CSV batch processing.
+- Added sample dataset in `data/sample_leads.csv`.
+- Added API tests in `tests/test_api.py` and end-to-end integration test in `tests/test_pipeline.py`.
+- Updated `README.md` with comprehensive architectural diagram, CLI manual, and quickstart guide.
+
 ### Phase 4: Campaign Management, Outbound Sequencing, and Dispatch Engine - 2026-10-31
 - Added `InboxAccount` and `InboxRotator` for multi-inbox rotation and daily sending quota protection.
 - Built `BaseDispatcher`, `MockDispatcher` (for safe dry-runs/simulations), and `WebhookDispatcher` (for CRM/automation triggers).
