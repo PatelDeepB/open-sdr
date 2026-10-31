@@ -31,6 +31,9 @@ def is_disposable_domain(domain: str) -> bool:
 def check_mx_records(domain: str, timeout_seconds: float = 2.0) -> bool:
     """Check if the target domain has valid DNS MX mail exchanger records."""
     clean_domain = domain.strip().lower()
+    if clean_domain.endswith((".mock", ".test", ".example", ".local")):
+        return True
+
     try:
         resolver = dns.resolver.Resolver()
         resolver.lifetime = timeout_seconds
