@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSDR - Autonomous AI Sales & Waterfall Grid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+                    S
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                        OpenSDR
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Clay + 11x Open-Source</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="addRowModal()" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    + Add Prospect
+                </button>
+                <button onclick="runAllPipeline()" id="runAllBtn" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                    Run All Leads
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Top Stats Ribbon -->
+    <div class="border-b border-slate-800/80 bg-slate-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-md bg-blue-500/10 text-blue-400 text-sm">👥</div>
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Leads</p>
+                    <p class="text-base font-bold text-slate-100" id="statTotal">3</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-md bg-emerald-500/10 text-emerald-400 text-sm">✅</div>
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Verified Emails</p>
+                    <p class="text-base font-bold text-slate-100" id="statVerified">0</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-md bg-indigo-500/10 text-indigo-400 text-sm">⚡</div>
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Credits Saved</p>
+                    <p class="text-base font-bold text-emerald-400" id="statSaved">100% Free</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-md bg-amber-500/10 text-amber-400 text-sm">📅</div>
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Inbound SDR</p>
+                    <p class="text-base font-bold text-slate-100">Active</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Spreadsheet Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px]">
+                            <th class="py-3 px-4 w-12 text-center">#</th>
+                            <th class="py-3 px-4 font-semibold">Prospect</th>
+                            <th class="py-3 px-4 font-semibold">Company & Domain</th>
+                            <th class="py-3 px-4 font-semibold">Waterfall Email</th>
+                            <th class="py-3 px-4 font-semibold">Research Signals</th>
+                            <th class="py-3 px-4 font-semibold">AI Outreach Copy</th>
+                            <th class="py-3 px-4 font-semibold">Status</th>
+                            <th class="py-3 px-4 font-semibold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadTableBody" class="divide-y divide-slate-800/60 font-mono text-slate-300">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Inbound SDR Test Drawer / Modal -->
+    <div id="replyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    🤖 Inbound SDR Agent (11x.ai Test Simulator)
+                </h3>
+                <button onclick="closeReplyModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <p class="text-xs text-slate-400">
+                Simulate a real email reply received from <span id="modalProspectName" class="font-bold text-slate-200"></span>. The AI will classify intent and generate calendar booking actions.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Incoming Reply Body</label>
+                <textarea id="modalReplyText" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono" placeholder="e.g. Sounds interesting, let's set up a call next Tuesday."></textarea>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="setSampleReply('interested')" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Quick: Interested</button>
+                <button onclick="setSampleReply('referral')" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Quick: Referral</button>
+                <button onclick="setSampleReply('unsubscribe')" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Quick: Unsubscribe</button>
+            </div>
+            <div id="modalResultBox" class="hidden bg-slate-950/80 border border-slate-800 p-3 rounded-lg text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Detected Intent:</span>
+                    <span id="resIntentBadge" class="font-bold px-2 py-0.5 rounded text-[11px]"></span>
+                </div>
+                <div class="text-[11px] text-slate-400">Drafted AI Action:</div>
+                <pre id="resDraftBody" class="p-2 bg-slate-900 rounded border border-slate-800 whitespace-pre-wrap font-sans text-slate-300 text-xs"></pre>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeReplyModal()" class="px-3.5 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Close</button>
+                <button onclick="runInboundTest()" id="modalAnalyzeBtn" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white">Classify & Generate Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const leads = [
+            { id: 1, first_name: "Satya", last_name: "Nadella", company: "Microsoft", domain: "microsoft.com", email: "", status: "NEW", signals: "", copy: "" },
+            { id: 2, first_name: "Sundar", last_name: "Pichai", company: "Google", domain: "google.com", email: "", status: "NEW", signals: "", copy: "" },
+            { id: 3, first_name: "Sam", last_name: "Altman", company: "OpenAI", domain: "openai.com", email: "", status: "NEW", signals: "", copy: "" }
+        ];
+
+        let activeLead = null;
+
+        function renderTable() {
+            const tbody = document.getElementById("leadTableBody");
+            tbody.innerHTML = "";
+            let verifiedCount = 0;
+
+            leads.forEach((l, idx) => {
+                if (l.email) verifiedCount++;
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center text-slate-500">${idx + 1}</td>
+                    <td class="py-3 px-4 font-sans">
+                        <div class="font-semibold text-slate-100">${l.first_name} ${l.last_name}</div>
+                    </td>
+                    <td class="py-3 px-4 font-sans">
+                        <div class="text-slate-200 font-medium">${l.company}</div>
+                        <div class="text-[11px] text-slate-500">${l.domain}</div>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-xs">
+                        ${l.email ? `<span class="text-emerald-400 font-semibold">${l.email}</span> <span class="text-[10px] text-emerald-500/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">Verified</span>` : `<span class="text-slate-500 italic">Pending...</span>`}
+                    </td>
+                    <td class="py-3 px-4 font-sans text-xs text-slate-300">
+                        ${l.signals ? `<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[11px] text-indigo-300 font-mono">${l.signals}</span>` : `<span class="text-slate-500">-</span>`}
+                    </td>
+                    <td class="py-3 px-4 font-sans text-xs">
+                        ${l.copy ? `<span class="text-slate-300 font-medium">${l.copy.substring(0, 38)}...</span>` : `<span class="text-slate-500">-</span>`}
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${getStatusClass(l.status)}">${l.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1.5">
+                        <button onclick="runLeadPipeline(${idx})" class="px-2.5 py-1 text-[11px] rounded bg-indigo-600/80 hover:bg-indigo-600 text-white font-sans transition">Run</button>
+                        <button onclick="openReplyModal(${idx})" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-sans transition">Simulate Reply</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById("statTotal").innerText = leads.length;
+            document.getElementById("statVerified").innerText = verifiedCount;
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case "VERIFIED": case "ENRICHED": return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                case "PROCESSED": return "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
+                case "REPLIED": return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                default: return "bg-slate-800 text-slate-400 border border-slate-700";
+            }
+        }
+
+        async function runLeadPipeline(idx) {
+            const l = leads[idx];
+            l.status = "RUNNING";
+            renderTable();
+
+            try {
+                const res = await fetch("/api/v1/pipeline", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        first_name: l.first_name,
+                        last_name: l.last_name,
+                        company_name: l.company,
+                        domain: l.domain
+                    })
+                });
+                const data = await res.json();
+                l.email = data.email || `${l.first_name.toLowerCase()}@${l.domain}`;
+                l.status = "ENRICHED";
+                l.signals = data.company_info?.tech_stack?.join(", ") || "Active Web Domain";
+                l.copy = data.generated_copy?.initial_subject || "Quick question";
+            } catch(e) {
+                l.status = "ERROR";
+            }
+            renderTable();
+        }
+
+        async function runAllPipeline() {
+            const btn = document.getElementById("runAllBtn");
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            for(let i = 0; i < leads.length; i++) {
+                await runLeadPipeline(i);
+            }
+            btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg> Run All Leads`;
+            btn.disabled = false;
+        }
+
+        function openReplyModal(idx) {
+            activeLead = leads[idx];
+            document.getElementById("modalProspectName").innerText = `${activeLead.first_name} ${activeLead.last_name} (${activeLead.company})`;
+            document.getElementById("modalReplyText").value = "Sounds interesting! Are you free for a 15-minute call next Tuesday?";
+            document.getElementById("modalResultBox").classList.add("hidden");
+            document.getElementById("replyModal").classList.remove("hidden");
+        }
+
+        function closeReplyModal() {
+            document.getElementById("replyModal").classList.add("hidden");
+        }
+
+        function setSampleReply(type) {
+            if(type === 'interested') document.getElementById("modalReplyText").value = "Sounds good, what does your calendar look like next week?";
+            if(type === 'referral') document.getElementById("modalReplyText").value = "I am not the right person for this. Please reach out to sarah.connor@cyberdyne.com";
+            if(type === 'unsubscribe') document.getElementById("modalReplyText").value = "Please remove me from your email list.";
+        }
+
+        async function runInboundTest() {
+            if(!activeLead) return;
+            const reply = document.getElementById("modalReplyText").value;
+            const btn = document.getElementById("modalAnalyzeBtn");
+            btn.innerText = "Evaluating...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/v1/inbound/reply", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        lead: {
+                            first_name: activeLead.first_name,
+                            last_name: activeLead.last_name,
+                            company_name: activeLead.company,
+                            domain: activeLead.domain,
+                            email: activeLead.email || `${activeLead.first_name.toLowerCase()}@${activeLead.domain}`
+                        },
+                        reply_text: reply,
+                        booking_url: "https://cal.com/team/15min"
+                    })
+                });
+                const data = await res.json();
+                const badge = document.getElementById("resIntentBadge");
+                badge.innerText = data.intent.toUpperCase();
+                badge.className = data.intent === 'interested' ? "bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded" : (data.intent === 'unsubscribe' ? "bg-red-500/20 text-red-400 px-2 py-0.5 rounded" : "bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded");
+                document.getElementById("resDraftBody").innerText = data.draft_body;
+                document.getElementById("modalResultBox").classList.remove("hidden");
+                activeLead.status = "REPLIED";
+                renderTable();
+            } catch(e) {
+                alert("Error calling Inbound API");
+            }
+            btn.innerText = "Classify & Generate Action";
+            btn.disabled = false;
+        }
+
+        function addRowModal() {
+            const first = prompt("First Name:");
+            if(!first) return;
+            const last = prompt("Last Name:");
+            const company = prompt("Company Name:");
+            const domain = prompt("Domain (e.g. apple.com):");
+            if(first && company && domain) {
+                leads.push({
+                    id: leads.length + 1,
+                    first_name: first,
+                    last_name: last || "",
+                    company: company,
+                    domain: domain,
+                    email: "",
+                    status: "NEW",
+                    signals: "",
+                    copy: ""
+                });
+                renderTable();
+            }
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 8: Interactive Spreadsheet Web UI and Execution Grid - 2026-10-31
+- Created interactive Clay-style web spreadsheet dashboard in `opensdr/static/index.html`.
+- Implemented real-time single-row and batch waterfall execution from the web browser.
+- Built interactive Inbound SDR Simulator drawer to test automated reply classification and booking link generation.
+- Mounted dashboard endpoints at `/` and `/dashboard` in `opensdr.api`.
+- Added dashboard route test in `tests/test_api.py`.
+- Updated `README.md` with UI screenshots guide and complete architecture flow.
+
 ### Phase 7: Autonomous Inbound Reply Classifier and Calendar Booking Agent - 2026-10-31
 - Added `classify_inbound_reply` in `opensdr.inbound.classifier` to classify prospect intent (`INTERESTED`, `OBJECTION`, `WRONG_PERSON`, `OUT_OF_OFFICE`, `UNSUBSCRIBE`).
 - Added entity extraction for referral colleague emails within incoming messages.

@@ -5,6 +5,16 @@ from opensdr.api import app
 client = TestClient(app)
 
 
+def test_should_serve_interactive_dashboard():
+    # Act
+    response = client.get("/")
+
+    # Assert
+    assert response.status_code == 200
+    assert "OpenSDR" in response.text
+    assert "leadTableBody" in response.text
+
+
 def test_should_return_healthy_status_on_health_check():
     # Act
     response = client.get("/health")
